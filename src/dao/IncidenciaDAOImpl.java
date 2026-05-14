@@ -19,7 +19,7 @@ public class IncidenciaDAOImpl implements IncidenciaDAO {
         String sql =
                 "INSERT INTO incidencias (titulo, descripcion, ubicacion, prioridad, estado, reportada_por) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection con = ConexionDB.getConnection();
+        try (Connection con = ConexionDB.conectar();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, i.getTitulo());
             ps.setString(2, i.getDescripcion());
@@ -39,7 +39,7 @@ public class IncidenciaDAOImpl implements IncidenciaDAO {
         String sql =
                 "UPDATE incidencias SET titulo = ?, descripcion = ?, ubicacion = ?, " +
                 "       prioridad = ?, estado = ?, reportada_por = ? WHERE id = ?";
-        try (Connection con = ConexionDB.getConnection();
+        try (Connection con = ConexionDB.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, i.getTitulo());
             ps.setString(2, i.getDescripcion());
@@ -62,7 +62,7 @@ public class IncidenciaDAOImpl implements IncidenciaDAO {
                 "JOIN usuarios u ON uf.usuario_id = u.id " +
                 "ORDER BY i.fecha_creacion DESC";
         List<IncidenciaDTO> res = new ArrayList<>();
-        try (Connection con = ConexionDB.getConnection();
+        try (Connection con = ConexionDB.conectar();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -90,7 +90,7 @@ public class IncidenciaDAOImpl implements IncidenciaDAO {
                 "SELECT id, titulo, descripcion, ubicacion, prioridad, estado, " +
                 "       fecha_creacion, reportada_por FROM incidencias ORDER BY id";
         List<Incidencia> res = new ArrayList<>();
-        try (Connection con = ConexionDB.getConnection();
+        try (Connection con = ConexionDB.conectar();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -113,7 +113,7 @@ public class IncidenciaDAOImpl implements IncidenciaDAO {
     @Override
     public void eliminar(int id) throws SQLException {
         String sql = "DELETE FROM incidencias WHERE id = ?";
-        try (Connection con = ConexionDB.getConnection();
+        try (Connection con = ConexionDB.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();

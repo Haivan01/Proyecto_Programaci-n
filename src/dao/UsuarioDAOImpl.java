@@ -16,7 +16,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
     public Usuario validar(String username, String password) throws SQLException {
         String sql = "SELECT id, username, password, email, nombre, apellidos, dni, rol " +
                      "FROM usuarios WHERE username = ? AND password = ?";
-        try (Connection con = ConexionDB.getConnection();
+        try (Connection con = ConexionDB.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, username);
             ps.setString(2, password);
@@ -48,7 +48,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
 
         Connection con = null;
         try {
-            con = ConexionDB.getConnection();
+            con = ConexionDB.conectar();
             con.setAutoCommit(false);
 
             int newId;
@@ -91,7 +91,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
 
         Connection con = null;
         try {
-            con = ConexionDB.getConnection();
+            con = ConexionDB.conectar();
             con.setAutoCommit(false);
 
             int newId;
@@ -126,7 +126,6 @@ public class UsuarioDAOImpl implements UsuarioDAO {
 
     @Override
     public List<UsuarioDTO> listarTodos() throws SQLException {
-        // LEFT JOIN para incluir info de tablas hijas si existe
         String sql =
                 "SELECT u.id, u.username, u.nombre, u.apellidos, u.email, u.dni, u.rol, " +
                 "       t.especialidad, uf.departamento, uf.ubicacion " +
@@ -135,12 +134,12 @@ public class UsuarioDAOImpl implements UsuarioDAO {
                 "LEFT JOIN usuarios_finales uf ON u.id = uf.usuario_id " +
                 "ORDER BY u.id";
         List<UsuarioDTO> res = new ArrayList<>();
-        try (Connection con = ConexionDB.getConnection();
+        try (Connection con = ConexionDB.conectar();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 String rol = rs.getString("rol");
-                String extra = "";
+                String extra;
                 if ("tecnico".equals(rol)) {
                     extra = "Especialidad: " + rs.getString("especialidad");
                 } else if ("usuario_final".equals(rol)) {
@@ -169,7 +168,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
                 "       u.dni, u.rol, t.especialidad, t.telefono " +
                 "FROM usuarios u JOIN tecnicos t ON u.id = t.usuario_id ORDER BY u.apellidos";
         List<Tecnico> res = new ArrayList<>();
-        try (Connection con = ConexionDB.getConnection();
+        try (Connection con = ConexionDB.conectar();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -196,7 +195,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
                 "       u.dni, u.rol, uf.departamento, uf.ubicacion " +
                 "FROM usuarios u JOIN usuarios_finales uf ON u.id = uf.usuario_id ORDER BY u.apellidos";
         List<UsuarioFinal> res = new ArrayList<>();
-        try (Connection con = ConexionDB.getConnection();
+        try (Connection con = ConexionDB.conectar();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -220,7 +219,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
     public void actualizar(Usuario u) throws SQLException {
         String sql =
                 "UPDATE usuarios SET email = ?, nombre = ?, apellidos = ?, dni = ? WHERE id = ?";
-        try (Connection con = ConexionDB.getConnection();
+        try (Connection con = ConexionDB.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, u.getEmail());
             ps.setString(2, u.getNombre());
@@ -235,7 +234,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
     public boolean cambiarPassword(int idUsuario, String passwordActual, String passwordNueva) throws SQLException {
         String check = "SELECT id FROM usuarios WHERE id = ? AND password = ?";
         String upd = "UPDATE usuarios SET password = ? WHERE id = ?";
-        try (Connection con = ConexionDB.getConnection()) {
+        try (Connection con = ConexionDB.conectar()) {
             try (PreparedStatement ps = con.prepareStatement(check)) {
                 ps.setInt(1, idUsuario);
                 ps.setString(2, passwordActual);
@@ -254,7 +253,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
     @Override
     public void eliminar(int id) throws SQLException {
         String sql = "DELETE FROM usuarios WHERE id = ?";
-        try (Connection con = ConexionDB.getConnection();
+        try (Connection con = ConexionDB.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
@@ -264,7 +263,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
     @Override
     public boolean existeUsername(String username) throws SQLException {
         String sql = "SELECT 1 FROM usuarios WHERE username = ?";
-        try (Connection con = ConexionDB.getConnection();
+        try (Connection con = ConexionDB.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {

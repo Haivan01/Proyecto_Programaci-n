@@ -15,7 +15,7 @@ public class AsignacionDAOImpl implements AsignacionDAO {
         String sql =
                 "INSERT INTO asignaciones (tecnico_id, incidencia_id, fecha_asignacion, " +
                 "       observaciones, estado_asignacion) VALUES (?, ?, ?, ?, ?)";
-        try (Connection con = ConexionDB.getConnection();
+        try (Connection con = ConexionDB.conectar();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, a.getTecnicoId());
             ps.setInt(2, a.getIncidenciaId());
@@ -42,7 +42,7 @@ public class AsignacionDAOImpl implements AsignacionDAO {
                 "JOIN incidencias i    ON a.incidencia_id = i.id " +
                 "ORDER BY a.fecha_asignacion DESC";
         List<AsignacionDTO> res = new ArrayList<>();
-        try (Connection con = ConexionDB.getConnection();
+        try (Connection con = ConexionDB.conectar();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -64,7 +64,7 @@ public class AsignacionDAOImpl implements AsignacionDAO {
     @Override
     public void actualizarEstado(int id, Asignacion.EstadoAsignacion nuevoEstado) throws SQLException {
         String sql = "UPDATE asignaciones SET estado_asignacion = ? WHERE id = ?";
-        try (Connection con = ConexionDB.getConnection();
+        try (Connection con = ConexionDB.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, nuevoEstado.name());
             ps.setInt(2, id);
@@ -75,7 +75,7 @@ public class AsignacionDAOImpl implements AsignacionDAO {
     @Override
     public void eliminar(int id) throws SQLException {
         String sql = "DELETE FROM asignaciones WHERE id = ?";
-        try (Connection con = ConexionDB.getConnection();
+        try (Connection con = ConexionDB.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
